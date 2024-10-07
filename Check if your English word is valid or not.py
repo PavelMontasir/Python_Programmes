@@ -43,7 +43,36 @@ def is_valid_word(word):
     word_vector = vectorizer.transform([word])
     return model.predict(word_vector)[0] == 1
 
-# Test usage
-test_words = ['hello', 'pneumonoultramicroscopicsilicovolcanoconiosis', 'peace', 'zyxwvu','real']
-results = {word: is_valid_word(word) for word in test_words}
-print(results)
+!pip install python-Levenshtein  # Install the Levenshtein package
+import nltk
+nltk.download('words')
+from nltk.corpus import words
+import Levenshtein # Import after installation
+
+english_words = set(words.words())
+
+def is_valid_word(word):
+    return word.lower() in english_words
+
+def find_nearest_valid_word(word):
+    min_distance = float('inf')
+    nearest_word = None
+
+    for valid_word in english_words:
+        distance = Levenshtein.distance(word.lower(), valid_word)
+        if distance < min_distance:
+            min_distance = distance
+            nearest_word = valid_word
+
+    return nearest_word
+
+while True:
+    user_input = input("Enter a word (or type 'exit' to quit): ")
+    if user_input.lower() == 'exit':
+        break
+
+    if is_valid_word(user_input):
+        print("The word is valid")
+    else:
+        nearest_word = find_nearest_valid_word(user_input)
+        print(f"The word is not valid. Did you mean '{nearest_word}'?")
